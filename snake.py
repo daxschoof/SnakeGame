@@ -11,9 +11,10 @@ black = (0, 0, 0)
 cell_size = 40
 cell_number = 20
 
-# Initializing pygame and naming display
+# Initializing pygame, font, and naming display
 pygame.init()
 pygame.display.set_caption("Snake")
+game_font = pygame.font.Font('PoetsenOne-Regular.ttf', 25)
 
 # Setting up clock and screen constants
 clock = pygame.time.Clock()
@@ -115,16 +116,32 @@ class Main:
         self.check_collision()
 
     def draw_objs(self):
+        self.draw_grass()
+        self.draw_score()
         self.fruit.draw_obj()
         self.snake.draw_obj()
-        self.draw_grass()
 
     def draw_grass(self):
-        grass_color = (167, 209, 61)
+        grass_color = (15, 190, 44)
+        ground_color = (140, 138, 85)
         for col in range(cell_number):
-            for row in range(cell_number):
-                grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
-                pygame.draw.rect(screen, grass_color, grass_rect)
+            if col % 2 == 0:
+                for row in range(cell_number):
+                    if row % 2 == 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)
+                    else:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, ground_color, grass_rect)
+            else:
+                for row in range(cell_number):
+                    if row % 2 != 0:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, grass_color, grass_rect)
+                    else:
+                        grass_rect = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
+                        pygame.draw.rect(screen, ground_color, grass_rect)
+
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
@@ -139,6 +156,15 @@ class Main:
         for block in self.snake.body[1:]:
             if block == self.snake.body[0]:
                 self.game_over()
+
+    def draw_score(self):
+        score_surface = game_font.render(str(self.score), True, (0, 0, 0))
+        pos = (int(cell_size * cell_number) - 50, int(cell_size * cell_number) - 50)
+        score_rect = score_surface.get_rect(center = pos)
+        apple_rect = apple.get_rect(midright = (score_rect.left, score_rect.centery))
+
+        screen.blit(apple, apple_rect)
+        screen.blit(score_surface, score_rect)
 
     def game_over(self):
         pygame.quit()
@@ -168,9 +194,6 @@ while True:
                 main_loop.snake.direction = Vector2(1, 0)
             if event.key == pygame.K_LEFT and main_loop.snake.direction.x != 1:
                 main_loop.snake.direction = Vector2(-1, 0)
-
-    # Setting background color
-    screen.fill((89, 212, 154))
 
     # Draws the objects every iteration
     main_loop.draw_objs()
